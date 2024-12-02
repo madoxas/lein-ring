@@ -21,8 +21,8 @@
         :when (str/ends-with? pathname ".jar")]
     (io/file pathname)))
 
-(defn- contains-javax-servlet-class? [^JarFile jar-file]
-  (some? (.getEntry jar-file "javax/servlet/Servlet.class")))
+(defn- contains-jakarta-servlet-class? [^JarFile jar-file]
+  (some? (.getEntry jar-file "jakarta/servlet/Servlet.class")))
 
 (defn- pom-properties* [^JarEntry entry]
   (when (str/ends-with? (.getName entry) "pom.properties")
@@ -46,7 +46,7 @@
 (defn- war-path-for-jar [^File jar]
   (with-open [jar-file (JarFile. jar)]
     ;; Servlet container will have its own servlet-api implementation
-    (when-not (contains-javax-servlet-class? jar-file)
+    (when-not (contains-jakarta-servlet-class? jar-file)
       (let [name-from-pom (some->> (find-pom-properties jar-file)
                                    (jar-name-from-pom-properties jar-file))]
         (->> (or name-from-pom (.getName jar))

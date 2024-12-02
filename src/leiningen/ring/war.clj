@@ -123,7 +123,7 @@
     `(let [handler# ~(generate-resolve handler-sym)]
        (fn [request#]
          (let [context# (.getContextPath
-                          ^javax.servlet.http.HttpServletRequest
+                          ^jakarta.servlet.http.HttpServletRequest
                           (:servlet-request request#))]
            (handler#
             (assoc request#
@@ -135,7 +135,7 @@
   (let [servlet-ns  (symbol (servlet-ns project))]
     (compile-form project servlet-ns
       `(do (ns ~servlet-ns
-             (:gen-class :extends javax.servlet.http.HttpServlet))
+             (:gen-class :extends jakarta.servlet.http.HttpServlet))
            (def ~'service-method)
            (defn ~'-service [servlet# request# response#]
              (~'service-method servlet# request# response#)))
@@ -151,7 +151,7 @@
     (assert-vars-exist project init-sym destroy-sym handler-sym)
     (compile-form project project-ns
       `(do (ns ~project-ns
-             (:gen-class :implements [javax.servlet.ServletContextListener]))
+             (:gen-class :implements [jakarta.servlet.ServletContextListener]))
            ~(let [servlet-context-event (gensym)]
               `(do
                  (defn ~'-contextInitialized [this# ~servlet-context-event]
@@ -159,7 +159,7 @@
                       `(~(generate-resolve init-sym)))
                    (let [handler# ~(generate-handler project handler-sym)
                          make-service-method# ~(generate-resolve
-                                                 'ring.util.servlet/make-service-method)
+                                                 'ring.util.jakarta.servlet/make-service-method)
                          method# (make-service-method# handler# ~@(when async? [{:async? true}]))]
                      (alter-var-root
                        ~(generate-resolve (symbol servlet-ns "service-method"))
@@ -233,8 +233,8 @@
 
 (defn add-servlet-dep [project]
   (-> project
-      (deps/add-if-missing ['ring/ring-servlet ring-version])
-      (deps/add-if-missing '[javax.servlet/javax.servlet-api "3.1.0"])))
+      (deps/add-if-missing ['org.ring-clojure/ring-jakarta-servlet ring-version])
+      (deps/add-if-missing '[jakarta.servlet/jakarta.servlet-api "6.1.0"])))
 
 (defn war
   "Create a $PROJECT-$VERSION.war file."
